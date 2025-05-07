@@ -11,7 +11,7 @@ import os
 # Setup: Define constants & helper functions
 # ----------------------------------------------
 
-DATA_FOLDER = r"C:\Users\max_x\ucb\A - macss\2025 Spring\Climate TRACE & CLEE\Data\test-Final Update\country_year_emissions"
+DATA_FOLDER = "data"
 country_name_map = {
     "ARG": "Argentina", "BRA": "Brazil", "CAN": "Canada", "DEU": "Germany",
     "ESP": "Spain", "IND": "India", "KOR": "South Korea", "MEX": "Mexico",
