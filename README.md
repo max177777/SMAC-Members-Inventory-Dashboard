@@ -2,7 +2,7 @@
 
 This project presents an interactive dashboard for visualizing methane (CH₄) emissions data across the SMAC group of countries. It is designed to help users explore, compare, and analyze emissions trends over time at both national and subnational levels.
 
-Web Tools:
+Two Web Tools:
 
 1️. SMAC Members Methane Inventory Dashboard
 A comprehensive dashboard built with Streamlit, enabling interactive analysis of methane (CH₄) emissions trends and sectoral breakdowns across the SMAC group countries.
