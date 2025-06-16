@@ -340,12 +340,12 @@ elif tab_selection == "Comparison Tool":
     # Added for subnational location comparison
     comparison_mode = st.radio(
         "Comparison Mode",
-        ["Country-level", "Subnational Location-level"],
+        ["Country-level", "Subnational-level"],
         horizontal=True
     )
 
     # Subnational location-level comparison block
-    if comparison_mode == "Subnational Location-level":
+    if comparison_mode == "Subnational-level":
         comparison_year = st.selectbox("Select Year", AVAILABLE_YEARS)
 
         # Load all CH₄ data
@@ -388,18 +388,18 @@ elif tab_selection == "Comparison Tool":
             fig_time_a = px.bar(df_a, x='year', y='total', color='sector',
                                 labels={'total': 'CH₄ Emissions'},
                                 title=f"{location_a} – CH₄ Emissions by Sector Over Time")
-            st.plotly_chart(fig_time_a, use_container_width=True)
+            st.plotly_chart(fig_time_a, use_container_width=True, key='sub_time_a')
 
             st.subheader(f"{location_a} – Bar Chart")
             fig_a = px.bar(df_a.sort_values(by='total', ascending=False), x='sector', y='total',
                            labels={'total': 'CH₄ Emissions'},
                            title=f"{location_a} – CH₄ Emissions by Subsector")
-            st.plotly_chart(fig_a, use_container_width=True)
+            st.plotly_chart(fig_a, use_container_width=True, key='sub_bar_a')
 
             st.subheader(f"{location_a} – Pie Chart")
             fig_pie_a = px.pie(df_a, names='sector', values='total',
                                title=f"{location_a} – CH₄ Emissions by Subsector")
-            st.plotly_chart(fig_pie_a, use_container_width=True)
+            st.plotly_chart(fig_pie_a, use_container_width=True, key='sub_pie_a')
 
             st.subheader("Data Table – Location A")
             st.dataframe(df_a)
@@ -409,18 +409,18 @@ elif tab_selection == "Comparison Tool":
             fig_time_b = px.bar(df_b, x='year', y='total', color='sector',
                                 labels={'total': 'CH₄ Emissions'},
                                 title=f"{location_b} – CH₄ Emissions by Sector Over Time")
-            st.plotly_chart(fig_time_b, use_container_width=True)
+            st.plotly_chart(fig_time_b, use_container_width=True, key='sub_time_b')
 
             st.subheader(f"{location_b} – Bar Chart")
             fig_b = px.bar(df_b.sort_values(by='total', ascending=False), x='sector', y='total',
                            labels={'total': 'CH₄ Emissions'},
                            title=f"{location_b} – CH₄ Emissions by Subsector")
-            st.plotly_chart(fig_b, use_container_width=True)
+            st.plotly_chart(fig_b, use_container_width=True, key='sub_bar_b')
 
             st.subheader(f"{location_b} – Pie Chart")
             fig_pie_b = px.pie(df_b, names='sector', values='total',
                                title=f"{location_b} – CH₄ Emissions by Subsector")
-            st.plotly_chart(fig_pie_b, use_container_width=True)
+            st.plotly_chart(fig_pie_b, use_container_width=True, key='sub_pie_b')
 
             st.subheader("Data Table – Location B")
             st.dataframe(df_b)
