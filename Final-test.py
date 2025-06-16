@@ -363,12 +363,14 @@ elif tab_selection == "Comparison Tool":
         col1, col2 = st.columns(2)
         with col1:
             st.subheader("Location A")
-            country_a = st.selectbox("Country A", SMAC_COUNTRIES_FULL, key='loc_a_country')
-            location_a = st.selectbox("Location A", sorted(df_ch4[df_ch4['iso3_country'] == country_a]['location'].unique()), key='loc_a')
+            country_a_full = st.selectbox("Country A", SMAC_COUNTRIES_FULL, key='loc_a_country')
+            country_a = [k for k, v in country_name_map.items() if v == country_a_full][0]  
+            location_a = st.selectbox("Location A",sorted(df_ch4[df_ch4['iso3_country'] == country_a]['location'].unique()),key='loc_a')
 
         with col2:
             st.subheader("Location B")
-            country_b = st.selectbox("Country B", SMAC_COUNTRIES_FULL, key='loc_b_country')
+            country_b_full = st.selectbox("Country B", SMAC_COUNTRIES_FULL, key='loc_b_country'）
+            country_b = [k for k, v in country_name_map.items() if v == country_b_full][0] 
             location_b = st.selectbox("Location B", sorted(df_ch4[df_ch4['iso3_country'] == country_b]['location'].unique()), key='loc_b')
 
         def get_comparison_df(country, location):
