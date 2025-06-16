@@ -337,8 +337,99 @@ elif tab_selection == "Comparison Tool":
    
     st.header("Compare CH₄ Emissions")
 
+    # Added for subnational location comparison
+    comparison_mode = st.radio(
+        "Comparison Mode",
+        ["Country-level", "Subnational Location-level"],
+        horizontal=True
+    )
+
+    # Subnational location-level comparison block
+    if comparison_mode == "Subnational Location-level":
+        comparison_year = st.selectbox("Select Year", AVAILABLE_YEARS)
+
+        # Load all CH₄ data
+        df_all = pd.DataFrame()
+        for year in AVAILABLE_YEARS:
+            for country_code in SMAC_COUNTRIES:
+                df_temp = load_country_year_data(country_code, year)
+                if not df_temp.empty:
+                    df_temp['year'] = year
+                    df_temp['iso3_country'] = country_code
+                    df_all = pd.concat([df_all, df_temp], ignore_index=True)
+
+        df_ch4 = df_all[df_all['gas'] == 'ch4'].copy()
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.subheader("Location A")
+            country_a = st.selectbox("Country A", sorted(df_ch4['iso3_country'].unique()), key='loc_a_country')
+            location_a = st.selectbox("Location A", sorted(df_ch4[df_ch4['iso3_country'] == country_a]['location'].unique()), key='loc_a')
+
+        with col2:
+            st.subheader("Location B")
+            country_b = st.selectbox("Country B", sorted(df_ch4['iso3_country'].unique()), key='loc_b_country')
+            location_b = st.selectbox("Location B", sorted(df_ch4[df_ch4['iso3_country'] == country_b]['location'].unique()), key='loc_b')
+
+        def get_comparison_df(country, location):
+            temp_df = df_ch4[(df_ch4['iso3_country'] == country) & (df_ch4['location'] == location)]
+            temp_df = temp_df.groupby(['year', 'original_inventory_sector'])[['asset_emissions', 'remainder_emissions']].sum().reset_index()
+            temp_df['total'] = temp_df['asset_emissions'] + temp_df['remainder_emissions']
+            temp_df = temp_df[temp_df['total'] > 0]
+            temp_df['sector'] = temp_df['original_inventory_sector'].map(sector_map).fillna('other')
+            return temp_df
+
+        df_a = get_comparison_df(country_a, location_a)
+        df_b = get_comparison_df(country_b, location_b)
+
+        col3, col4 = st.columns(2)
+        with col3:
+            st.subheader(f"{location_a} ({comparison_year}) – Emissions by Sector Over Time")
+            fig_time_a = px.bar(df_a, x='year', y='total', color='sector',
+                                labels={'total': 'CH₄ Emissions'},
+                                title=f"{location_a} – CH₄ Emissions by Sector Over Time")
+            st.plotly_chart(fig_time_a, use_container_width=True)
+
+            st.subheader(f"{location_a} – Bar Chart")
+            fig_a = px.bar(df_a.sort_values(by='total', ascending=False), x='sector', y='total',
+                           labels={'total': 'CH₄ Emissions'},
+                           title=f"{location_a} – CH₄ Emissions by Subsector")
+            st.plotly_chart(fig_a, use_container_width=True)
+
+            st.subheader(f"{location_a} – Pie Chart")
+            fig_pie_a = px.pie(df_a, names='sector', values='total',
+                               title=f"{location_a} – CH₄ Emissions by Subsector")
+            st.plotly_chart(fig_pie_a, use_container_width=True)
+
+            st.subheader("Data Table – Location A")
+            st.dataframe(df_a)
+
+        with col4:
+            st.subheader(f"{location_b} ({comparison_year}) – Emissions by Sector Over Time")
+            fig_time_b = px.bar(df_b, x='year', y='total', color='sector',
+                                labels={'total': 'CH₄ Emissions'},
+                                title=f"{location_b} – CH₄ Emissions by Sector Over Time")
+            st.plotly_chart(fig_time_b, use_container_width=True)
+
+            st.subheader(f"{location_b} – Bar Chart")
+            fig_b = px.bar(df_b.sort_values(by='total', ascending=False), x='sector', y='total',
+                           labels={'total': 'CH₄ Emissions'},
+                           title=f"{location_b} – CH₄ Emissions by Subsector")
+            st.plotly_chart(fig_b, use_container_width=True)
+
+            st.subheader(f"{location_b} – Pie Chart")
+            fig_pie_b = px.pie(df_b, names='sector', values='total',
+                               title=f"{location_b} – CH₄ Emissions by Subsector")
+            st.plotly_chart(fig_pie_b, use_container_width=True)
+
+            st.subheader("Data Table – Location B")
+            st.dataframe(df_b)
+
+    # Existing country-level comparison block
+else:
     # Side-by-side selectors for A and B
     col1, col2 = st.columns(2)
+    
     with col1:
         st.subheader("Location A")
         country_a_full = st.selectbox("Country A", SMAC_COUNTRIES_FULL, key='a')
@@ -355,6 +446,7 @@ elif tab_selection == "Comparison Tool":
 
     # Side-by-side plots and tables for A and B
     col3, col4 = st.columns(2)
+    
     with col3:
         if not df_a.empty:
             st.subheader(f"{country_a_full} ({year_a}) – Sector Breakdown")
@@ -362,13 +454,11 @@ elif tab_selection == "Comparison Tool":
             sector_df_a = df_ch4_a.groupby('original_inventory_sector')['total_emission'].sum().reset_index()
             sector_df_a['sector'] = sector_df_a['original_inventory_sector'].map(sector_map).fillna('other')
 
-            # Bar Chart
             fig_a = px.bar(sector_df_a.sort_values(by='total_emission', ascending=False),
                            x='sector', y='total_emission',
                            title=f"{country_a_full} – CH₄ Emissions by Sector")
             st.plotly_chart(fig_a, use_container_width=True, key='fig_a_bar')
 
-            # Pie Chart
             fig_pie_a = px.pie(sector_df_a, names='original_inventory_sector', values='total_emission',
                                title=f"{country_a_full} – CH₄ Emissions by Subsector")
             fig_pie_a.update_traces(
@@ -384,13 +474,10 @@ elif tab_selection == "Comparison Tool":
             )
             st.plotly_chart(fig_pie_a, use_container_width=True, key='fig_a_pie')
 
-            # Data Table
             st.subheader("Data Table – Location A")
             st.dataframe(sector_df_a)
 
-            #  NEW: Add 2021–2024 Trend Chart for Location A
             st.subheader(f"{country_a_full} – CH₄ Emissions Trend (2021–2024)")
-            
             combined_a_years = pd.DataFrame()
             for year_iter in AVAILABLE_YEARS:
                 df_temp_a = load_country_year_data(country_a, year_iter)
@@ -401,12 +488,8 @@ elif tab_selection == "Comparison Tool":
             if not combined_a_years.empty:
                 df_ch4_all_a = combined_a_years[combined_a_years['gas'] == 'ch4'].copy()
                 df_ch4_all_a['sector'] = df_ch4_all_a['original_inventory_sector'].map(sector_map).fillna('other')
-                
-                sector_time_df_a = (
-                    df_ch4_all_a.groupby(['year', 'sector'])['total_emission']
-                    .sum()
-                    .reset_index())
-                
+                sector_time_df_a = df_ch4_all_a.groupby(['year', 'sector'])['total_emission'].sum().reset_index()
+
                 fig_trend_a = px.bar(
                     sector_time_df_a,
                     x='year',
@@ -416,7 +499,6 @@ elif tab_selection == "Comparison Tool":
                     title=f"{country_a_full} CH₄ Emissions by Sector (2021–2024)")
                 st.plotly_chart(fig_trend_a, use_container_width=True, key='fig_trend_a')
 
-
     with col4:
         if not df_b.empty:
             st.subheader(f"{country_b_full} ({year_b}) – Sector Breakdown")
@@ -424,13 +506,11 @@ elif tab_selection == "Comparison Tool":
             sector_df_b = df_ch4_b.groupby('original_inventory_sector')['total_emission'].sum().reset_index()
             sector_df_b['sector'] = sector_df_b['original_inventory_sector'].map(sector_map).fillna('other')
 
-            # Bar Chart
             fig_b = px.bar(sector_df_b.sort_values(by='total_emission', ascending=False),
                            x='sector', y='total_emission',
                            title=f"{country_b_full} – CH₄ Emissions by Sector")
             st.plotly_chart(fig_b, use_container_width=True, key='fig_b_bar')
 
-            # Pie Chart
             fig_pie_b = px.pie(sector_df_b, names='original_inventory_sector', values='total_emission',
                                title=f"{country_b_full} – CH₄ Emissions by Subsector")
             fig_pie_b.update_traces(
@@ -446,29 +526,22 @@ elif tab_selection == "Comparison Tool":
             )
             st.plotly_chart(fig_pie_b, use_container_width=True, key='fig_b_pie')
 
-            # Data Table
             st.subheader("Data Table – Location B")
             st.dataframe(sector_df_b)
 
-            # NEW: Add 2021–2024 Trend Chart for Location B
             st.subheader(f"{country_b_full} – CH₄ Emissions Trend (2021–2024)")
-            
             combined_b_years = pd.DataFrame()
             for year_iter in AVAILABLE_YEARS:
                 df_temp_b = load_country_year_data(country_b, year_iter)
                 if not df_temp_b.empty:
                     df_temp_b['year'] = year_iter
                     combined_b_years = pd.concat([combined_b_years, df_temp_b], ignore_index=True)
-                
+                    
             if not combined_b_years.empty:
                 df_ch4_all_b = combined_b_years[combined_b_years['gas'] == 'ch4'].copy()
                 df_ch4_all_b['sector'] = df_ch4_all_b['original_inventory_sector'].map(sector_map).fillna('other')
-                
-                sector_time_df_b = (
-                    df_ch4_all_b.groupby(['year', 'sector'])['total_emission']
-                    .sum()
-                    .reset_index())
-                
+                sector_time_df_b = df_ch4_all_b.groupby(['year', 'sector'])['total_emission'].sum().reset_index()
+
                 fig_trend_b = px.bar(
                     sector_time_df_b,
                     x='year',
@@ -477,4 +550,3 @@ elif tab_selection == "Comparison Tool":
                     labels={'total_emission': 'CH₄ Emissions', 'year': 'Year'},
                     title=f"{country_b_full} CH₄ Emissions by Sector (2021–2024)")
                 st.plotly_chart(fig_trend_b, use_container_width=True, key='fig_trend_b')
-
