@@ -391,9 +391,9 @@ elif tab_selection == "Comparison Tool":
             st.plotly_chart(fig_time_a, use_container_width=True, key='sub_time_a')
 
             st.subheader(f"{location_a} – Bar Chart")
-            fig_a = px.bar(df_a.sort_values(by='total', ascending=False), x='sector', y='total',
-                           labels={'total': 'CH₄ Emissions'},
-                           title=f"{location_a} – CH₄ Emissions by Subsector")
+            sorted_sector_order_a = df_a.groupby('sector')['total'].sum().sort_values(ascending=False).index.tolist()
+            fig_a = px.bar(df_a, x='sector', y='total', category_orders={'sector': sorted_sector_order_a}, 
+                           labels={'total': 'CH₄ Emissions'},title=f"{location_a} – CH₄ Emissions by Subsector")
             st.plotly_chart(fig_a, use_container_width=True, key='sub_bar_a')
 
             st.subheader(f"{location_a} – Pie Chart")
@@ -412,9 +412,9 @@ elif tab_selection == "Comparison Tool":
             st.plotly_chart(fig_time_b, use_container_width=True, key='sub_time_b')
 
             st.subheader(f"{location_b} – Bar Chart")
-            fig_b = px.bar(df_b.sort_values(by='total', ascending=False), x='sector', y='total',
-                           labels={'total': 'CH₄ Emissions'},
-                           title=f"{location_b} – CH₄ Emissions by Subsector")
+            sorted_sector_order_b = df_b.groupby('sector')['total'].sum().sort_values(ascending=False).index.tolist()
+            fig_b = px.bar(df_b, x='sector', y='total', category_orders={'sector': sorted_sector_order_b},
+                           labels={'total': 'CH₄ Emissions'}, title=f"{location_b} – CH₄ Emissions by Subsector")
             st.plotly_chart(fig_b, use_container_width=True, key='sub_bar_b')
 
             st.subheader(f"{location_b} – Pie Chart")
