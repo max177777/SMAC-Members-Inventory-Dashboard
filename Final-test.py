@@ -373,10 +373,10 @@ elif tab_selection == "Comparison Tool":
 
         def get_comparison_df(country, location):
             temp_df = df_ch4[(df_ch4['iso3_country'] == country) & (df_ch4['location'] == location)]
-            temp_df = temp_df.groupby(['year', 'original_inventory_sector'])[['asset_emissions', 'remainder_emissions']].sum().reset_index()
-            temp_df['total'] = temp_df['asset_emissions'] + temp_df['remainder_emissions']
-            temp_df = temp_df[temp_df['total'] > 0]
+            temp_df = temp_df.groupby(['year', 'original_inventory_sector'])[['total_emission']].sum().reset_index()
+            temp_df = temp_df[temp_df['total_emission'] > 0]
             temp_df['sector'] = temp_df['original_inventory_sector'].map(sector_map).fillna('other')
+            temp_df.rename(columns={'total_emission': 'total'}, inplace=True)
             return temp_df
 
         df_a = get_comparison_df(country_a, location_a)
