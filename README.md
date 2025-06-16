@@ -12,7 +12,7 @@ https://smac-members-inventory-dashboard.streamlit.app/
 
 2️. SMAC Methane Emissions Sunburst Tool
 
-An interactive sunburst chart (Observable) visualizing methane emissions by country, region, and sector for 11 SMAC members.
+An interactive sunburst chart (Observable) visualizing methane emissions by country, region, and sector for SMAC members.
 
 https://observablehq.com/@max-no-sekai/smac-methane-emissions-sunburst-tool
 
