@@ -369,7 +369,7 @@ elif tab_selection == "Comparison Tool":
 
         with col2:
             st.subheader("Location B")
-            country_b_full = st.selectbox("Country B", SMAC_COUNTRIES_FULL, key='loc_b_country'）
+            country_b_full = st.selectbox("Country B", SMAC_COUNTRIES_FULL, key='loc_b_country')
             country_b = [k for k, v in country_name_map.items() if v == country_b_full][0] 
             location_b = st.selectbox("Location B", sorted(df_ch4[df_ch4['iso3_country'] == country_b]['location'].unique()), key='loc_b')
 
